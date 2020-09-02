@@ -123,7 +123,7 @@ public class ScalesManager {
         //剩余的正常部分
         else {
             //TODO 暂时全部要index
-            float dx = mScales.get((int) index).mStartX - startOffset;
+            float dx = mScales.get((int) (scrollX/bigScalesDistance)).mStartX+mStartX - startOffset;
             Log.e("xiaojun","dx2="+dx+",index="+index+",startOffset="+startOffset+",bigScalesDistance="+bigScalesDistance);
             return dx;
         }
