@@ -156,16 +156,14 @@ public class HorizontalWheelView extends View {
     @Override
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
-            Log.e("xiaojun", "computeScroll," + getClass().getSimpleName() + ",computeScroll,getScrollX=" + getScrollX());
             scrollTo(mScroller.getCurrX(), 0);
             ViewCompat.postInvalidateOnAnimation(this);
         } else {
             if (mType == SCROLLTYPE.FLING) {
-                Log.e("xiaojun", "fling corresponding");
                 float dx = mScalesManager.correctOffsetX(getScrollX(), mOffsetXFix);
                 scrollToCorrespondingPosition(dx);
             } else {
-                if (mType == SCROLLTYPE.PROGRAM) {
+                if (mType == SCROLLTYPE.PROGRAM) {//startScroll结束
                     mType = SCROLLTYPE.NONE;
                     //滑动到中间需要使球消失
                     if (mScalesManager.getCenterScale().mStartX == (getScrollX() + mOffsetXFix)) {
