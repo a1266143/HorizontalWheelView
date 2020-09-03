@@ -17,6 +17,7 @@ import androidx.core.view.GestureDetectorCompat;
 import androidx.core.view.ViewCompat;
 
 import com.xiaojun.horizontalwheelview.SCROLLTYPE;
+import com.xiaojun.horizontalwheelview.util.ScreenUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,7 @@ public class HorizontalWheelView extends View {
 
     //---------------------------------------球--------------------------------------
     private Ball mBallCenter;
+    private BallManager mBallManager;
 
     private GestureDetectorCompat mGestureDetector;
     private Scroller mScroller;
@@ -106,7 +108,7 @@ public class HorizontalWheelView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         mScalesManager = new ScalesDiscreteManager(getContext(), w, h);
         List<String> datas = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             datas.add("" + i);
         }
         mScalesManager.setDiscreteDatas(datas);
@@ -121,10 +123,11 @@ public class HorizontalWheelView extends View {
     private void initBall(){
         mBallCenter = new Ball();
         mBallCenter.x = mScalesManager.getCenterScale().mStartX;
-        mBallCenter.y = 5;
-        mBallCenter.radius = 5;
+        mBallCenter.y = ScreenUtils.dp2px(getContext(),3);
+        mBallCenter.radius = ScreenUtils.dp2px(getContext(),3);
         mBallCenter.alpha = 1;
         mBallCenter.color = Color.WHITE;
+        mBallManager = new BallManager(this,mBallCenter);
     }
 
     @Override
@@ -164,6 +167,10 @@ public class HorizontalWheelView extends View {
             } else {
                 if (mType == SCROLLTYPE.PROGRAM) {
                     mType = SCROLLTYPE.NONE;
+                    //滑动到中间需要使球消失
+                    if (mScalesManager.getCenterScale().mStartX == (getScrollX()+mOffsetXFix)){
+                        mBallManager.dismissBall();
+                    }
                     Toast.makeText(getContext(),""+mScalesManager.getFinalStopIndex(),Toast.LENGTH_SHORT).show();
                 }
             }
@@ -199,6 +206,7 @@ public class HorizontalWheelView extends View {
         else if (getScrollX() < -mOffsetXFix)
             distanceX *= 0.4f;
         scrollBy((int) distanceX, 0);
+        mBallManager.showBall();
         return true;
     }
 
