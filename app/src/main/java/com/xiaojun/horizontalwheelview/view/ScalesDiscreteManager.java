@@ -22,13 +22,14 @@ public class ScalesDiscreteManager {
     private int mNumOfBigScale;//大刻度的总数量
     private Context mContext;
     private List<Scale> mScales = new ArrayList<>();
-    private float mStartX;
+    private float mStartX;//固定的Scroll距离，现在是viewWidth/2
     private int mIndex;//纠正过后的index
 
-    public ScalesDiscreteManager(Context context, int canvasWidth, int canvasHeight) {
+    public ScalesDiscreteManager(Context context, int canvasWidth, int canvasHeight, float offsetFix) {
         this.mContext = context;
         this.mCanvasWidth = canvasWidth;
         this.mCanvasHeight = canvasHeight;
+        this.mStartX = offsetFix;
     }
 
     //--------------------------------------------对外接口--------------------------------------------------
@@ -95,18 +96,37 @@ public class ScalesDiscreteManager {
 
     /**
      * 获取中间的刻度
+     *
      * @return
      */
-    public Scale getCenterScale(){
+    public Scale getCenterScale() {
         if (mNumOfBigScale <= 0)
             return null;
-        if (mNumOfBigScale <= 2){
+        if (mNumOfBigScale <= 2) {
             return mScales.get(0);
-        }else{
-            int realIndex = (mNumOfBigScale/2)+mNumOfSmallScale*(mNumOfBigScale/2);
-            Log.e("xiaojun","realIndex="+realIndex+",numOfBigScale="+mNumOfBigScale+",numOfSmallScale="+mNumOfSmallScale);
+        } else {
+            int realIndex = (mNumOfBigScale / 2) + mNumOfSmallScale * (mNumOfBigScale / 2);
+            Log.e("xiaojun", "realIndex=" + realIndex + ",numOfBigScale=" + mNumOfBigScale + ",numOfSmallScale=" + mNumOfSmallScale);
             return mScales.get(realIndex);
         }
+    }
+
+    /**
+     * 根据需要滑动到的Position返回偏移量(带方向(正负号))
+     *
+     * @param scrollX
+     * @param position
+     */
+    public float getDxFromPosition(float scrollX, int position) {
+        if (position < 0 || position > (mNumOfBigScale - 1)) {
+            Log.e("xiaojun", "-------------------------------position超出范围-----------------------------");
+            return 0;
+        }
+        this.mIndex = position;
+        float currentScrollX = scrollX + mStartX;//当前阵阵的scrollx
+        int realPosition = position + position * mNumOfSmallScale;//真正的position
+        float correctScrollX = mScales.get(realPosition).mStartX;
+        return correctScrollX - currentScrollX;
     }
 
     //----------------------------------------------------------------------------------------

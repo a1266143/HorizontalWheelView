@@ -41,6 +41,7 @@ public class HorizontalWheelView extends View {
     //---------------------------------------球--------------------------------------
     private Ball mBallCenter;
     private BallManager mBallManager;
+    private Paint mPaintBall = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     private GestureDetectorCompat mGestureDetector;
     private Scroller mScroller;
@@ -106,28 +107,29 @@ public class HorizontalWheelView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mScalesManager = new ScalesDiscreteManager(getContext(), w, h);
         List<String> datas = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 10; i++) {
             datas.add("" + i);
         }
-        mScalesManager.setDiscreteDatas(datas);
         this.mWidth = w;
         this.mHeight = h;
         mOffsetXFix = mWidth / 2;
+        mScalesManager = new ScalesDiscreteManager(getContext(), w, h, mOffsetXFix);
+        mScalesManager.setDiscreteDatas(datas);
+
         initBall();
         //初始化到中间
         scrollTo(-mOffsetXFix, 0);
     }
 
-    private void initBall(){
+    private void initBall() {
         mBallCenter = new Ball();
         mBallCenter.x = mScalesManager.getCenterScale().mStartX;
-        mBallCenter.y = ScreenUtils.dp2px(getContext(),3);
-        mBallCenter.radius = ScreenUtils.dp2px(getContext(),3);
+        mBallCenter.y = ScreenUtils.dp2px(getContext(), 3);
+        mBallCenter.radius = ScreenUtils.dp2px(getContext(), 3);
         mBallCenter.alpha = 1;
         mBallCenter.color = Color.WHITE;
-        mBallManager = new BallManager(this,mBallCenter);
+        mBallManager = new BallManager(this, mBallCenter);
     }
 
     @Override
@@ -144,12 +146,10 @@ public class HorizontalWheelView extends View {
         canvas.drawLine(getScrollX() + mWidth / 2.f, 0, getScrollX() + mWidth / 2.f, mHeight, mPaintScale);
     }
 
-    private Paint mPaintBall = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-    private void drawCenterBall(Canvas canvas){
+    private void drawCenterBall(Canvas canvas) {
         mPaintBall.setColor(mBallCenter.color);
-        mPaintBall.setAlpha((int) (mBallCenter.alpha*255));
-        canvas.drawCircle(mBallCenter.x,mBallCenter.y,mBallCenter.radius,mPaintBall);
+        mPaintBall.setAlpha((int) (mBallCenter.alpha * 255));
+        canvas.drawCircle(mBallCenter.x, mBallCenter.y, mBallCenter.radius, mPaintBall);
     }
 
 
@@ -168,13 +168,25 @@ public class HorizontalWheelView extends View {
                 if (mType == SCROLLTYPE.PROGRAM) {
                     mType = SCROLLTYPE.NONE;
                     //滑动到中间需要使球消失
-                    if (mScalesManager.getCenterScale().mStartX == (getScrollX()+mOffsetXFix)){
+                    if (mScalesManager.getCenterScale().mStartX == (getScrollX() + mOffsetXFix)) {
                         mBallManager.dismissBall();
                     }
-                    Toast.makeText(getContext(),""+mScalesManager.getFinalStopIndex(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "" + mScalesManager.getFinalStopIndex(), Toast.LENGTH_SHORT).show();
                 }
             }
         }
+    }
+
+    /**
+     * 滑动到某个固定的Position
+     *
+     * @param position
+     */
+    public void scrollToPosition(int position) {
+        mType = SCROLLTYPE.PROGRAM;
+        mBallManager.showBall();
+        mScroller.startScroll(getScrollX(), 0, (int) mScalesManager.getDxFromPosition(getScrollX(), position), 0);
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 
     /**
