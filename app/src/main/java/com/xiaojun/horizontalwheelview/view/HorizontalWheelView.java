@@ -184,6 +184,7 @@ public class HorizontalWheelView extends View {
      */
     public void scrollToPosition(int position) {
         mType = SCROLLTYPE.PROGRAM;
+        mScroller.forceFinished(true);
         mBallManager.showBall();
         mScroller.startScroll(getScrollX(), 0, (int) mScalesManager.getDxFromPosition(getScrollX(), position), 0);
         ViewCompat.postInvalidateOnAnimation(this);
