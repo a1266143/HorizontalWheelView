@@ -4,6 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -46,6 +49,8 @@ public class HorizontalWheelView extends View {
     private GestureDetectorCompat mGestureDetector;
     private Scroller mScroller;
     private OnProgressChangeListener mListener;
+    private Vibrator mVb;
+    private VibrationEffect mVe;
 
 
     public HorizontalWheelView(Context context) {
@@ -65,6 +70,9 @@ public class HorizontalWheelView extends View {
         mPaintScale.setStyle(Paint.Style.STROKE);
         mGestureDetector = new GestureDetectorCompat(getContext(), new MySimpleOnGestureListener());
         mScroller = new Scroller(getContext());
+
+        mVb = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
+//        mVe = VibrationEffect.createOneShot(10,VibrationEffect.DEFAULT_AMPLITUDE)
     }
 
     class MySimpleOnGestureListener extends SimpleOnGestureListener {
@@ -158,6 +166,7 @@ public class HorizontalWheelView extends View {
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
             scrollTo(mScroller.getCurrX(), 0);
+            vibrate(false);
             ViewCompat.postInvalidateOnAnimation(this);
         } else {
             if (mType == SCROLLTYPE.FLING) {
@@ -166,14 +175,32 @@ public class HorizontalWheelView extends View {
             } else {
                 if (mType == SCROLLTYPE.PROGRAM) {//startScroll结束
                     mType = SCROLLTYPE.NONE;
+//                    vibrate(false);
                     //滑动到中间需要使球消失
                     if (mScalesManager.getCenterScale().mStartX == (getScrollX() + mOffsetXFix)) {
                         mBallManager.dismissBall();
                     }
-                    if (mListener!=null)
+                    if (mListener!=null){
                         mListener.onProgressSelected(mScalesManager.getFinalStopIndex());
+                    }
+
                 }
             }
+        }
+    }
+
+    /**
+     * 强制震动
+     */
+    private void vibrateForce(){
+        mVb.vibrate(15);
+    }
+
+    private void vibrate(boolean fromUser){
+        if (mScalesManager.isThroughPosition(getScrollX())){
+            mVb.vibrate(15);
+            if (mListener!=null)
+                mListener.onProgressChange(mScalesManager.getIndex(),fromUser);
         }
     }
 
@@ -219,7 +246,6 @@ public class HorizontalWheelView extends View {
         return true;
     }
 
-
     private boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         mType = SCROLLTYPE.SCROLL;
         if (getScrollX() > mScalesManager.getTotalScaleWidth() - mOffsetXFix)
@@ -227,6 +253,8 @@ public class HorizontalWheelView extends View {
         else if (getScrollX() < -mOffsetXFix)
             distanceX *= 0.4f;
         scrollBy((int) distanceX, 0);
+        //判断当前的scrollX是否在BigScale线段内
+        vibrate(true);
         mBallManager.showBall();
         return true;
     }

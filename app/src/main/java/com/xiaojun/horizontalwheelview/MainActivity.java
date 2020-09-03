@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText mEdt;
     private HorizontalWheelView mView;
     private TextView mTv;
+    private TextView mTvRight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,10 +24,11 @@ public class MainActivity extends AppCompatActivity {
         mEdt = findViewById(R.id.edt);
         mView = findViewById(R.id.horizontalWheelView);
         mTv = findViewById(R.id.tv);
+        mTvRight = findViewById(R.id.tvRight);
         mView.setOnProgressChangeListener(new OnProgressChangeListener() {
             @Override
             public void onProgressChange(int position, boolean fromUser) {
-
+                mTvRight.setText(position+"");
             }
 
             @Override

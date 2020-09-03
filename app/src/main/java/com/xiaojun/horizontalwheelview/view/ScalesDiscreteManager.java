@@ -129,6 +129,55 @@ public class ScalesDiscreteManager {
         return correctScrollX - currentScrollX;
     }
 
+
+    private int mLastIndex;//上一次滚动的index
+
+    /**
+     * 是否正通过某个index
+     * @param scrollX
+     * @return
+     */
+    public boolean isThroughPosition(float scrollX) {
+        float realScrollX = scrollX + mStartX;
+        int index = (int) (realScrollX / (mScalesFixDistance * (mNumOfSmallScale+1)));
+        if (index >= mNumOfBigScale)
+            return false;
+        if (index != mLastIndex){
+            mLastIndex = index;
+            Log.e("xiaojun","dangqian index = "+index);
+            return true;
+        }
+
+        return false;
+//        float _index = realScrollX/(mScalesFixDistance*(mNumOfSmallScale+1));
+//        float distance = Math.abs(_index-index)*((mNumOfSmallScale+1)*mScalesFixDistance);
+//        //如果当前的ScrollX在线段之中，就需要提示外部
+//        if (distance <= mScales.get(0).mStrokeWidth){
+//            Log.e("xiaojun","distance="+distance+",strokeWidth="+ mScales.get(0).mStrokeWidth);
+//            return true;
+//        }
+
+//        return false;
+    }
+
+    public int getIndex(){
+        return mLastIndex;
+    }
+
+
+    /**
+     * 获取当前正在经过的index
+     * @param scrollX
+     * @return
+     */
+    public int getCurrentIndex(float scrollX){
+        float realScrollX = scrollX + mStartX;
+        int index = (int) (realScrollX / (mScalesFixDistance * mNumOfSmallScale));
+        float _index = realScrollX/(mScalesFixDistance*mNumOfSmallScale);
+        return 0;
+//        if ()
+    }
+
     //----------------------------------------------------------------------------------------
 
     /**
