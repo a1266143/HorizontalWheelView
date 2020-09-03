@@ -10,6 +10,7 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Scroller;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.view.GestureDetectorCompat;
@@ -30,7 +31,7 @@ public class HorizontalWheelView extends View {
     //刻度画笔
     private Paint mPaintScale = new Paint(Paint.ANTI_ALIAS_FLAG);
     //刻度管理器
-    private ScalesManager mScalesManager;
+    private ScalesDiscreteManager mScalesManager;
     private int mWidth, mHeight;
     private int mOffsetXFix;//固定偏移距离
     private SCROLLTYPE mType;
@@ -85,7 +86,7 @@ public class HorizontalWheelView extends View {
         if (mAction == MotionEvent.ACTION_UP) {
             boolean isFinish = mScroller.isFinished();
             if (isFinish) {//只scroll但是没有Fling，这时候需要纠正距离
-                float dx = mScalesManager.correctOffsetXByType(DataType.DISCRETE, getScrollX(), mOffsetXFix);
+                float dx = mScalesManager.correctOffsetX(getScrollX(), mOffsetXFix);
                 scrollToCorrespondingPosition(dx);
             }
         }
@@ -103,9 +104,9 @@ public class HorizontalWheelView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mScalesManager = new ScalesManager(getContext(), w, h);
+        mScalesManager = new ScalesDiscreteManager(getContext(), w, h);
         List<String> datas = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 15; i++) {
             datas.add("" + i);
         }
         mScalesManager.setDiscreteDatas(datas);
@@ -113,7 +114,7 @@ public class HorizontalWheelView extends View {
         this.mHeight = h;
         mOffsetXFix = mWidth / 2;
         //初始化到中间
-        scrollTo(-mOffsetXFix,0);
+        scrollTo(-mOffsetXFix, 0);
     }
 
     @Override
@@ -130,7 +131,6 @@ public class HorizontalWheelView extends View {
     }
 
 
-
     @Override
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
@@ -140,8 +140,13 @@ public class HorizontalWheelView extends View {
         } else {
             if (mType == SCROLLTYPE.FLING) {
                 Log.e("xiaojun", "fling corresponding");
-                float dx = mScalesManager.correctOffsetXByType(DataType.DISCRETE, getScrollX(), mOffsetXFix);
+                float dx = mScalesManager.correctOffsetX(getScrollX(), mOffsetXFix);
                 scrollToCorrespondingPosition(dx);
+            } else {
+                if (mType == SCROLLTYPE.PROGRAM) {
+                    mType = SCROLLTYPE.NONE;
+                    Toast.makeText(getContext(),""+mScalesManager.getFinalStopIndex(),Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -183,7 +188,7 @@ public class HorizontalWheelView extends View {
         if (flingCondition(velocityX)) {
             mType = SCROLLTYPE.FLING;
             velocityX *= 0.9f;//将速度减小到一半
-            mScroller.fling(getScrollX(), 0, -(int) velocityX, 0, -mWidth / 2-mWidth/9, ((int) (mScalesManager.getTotalScaleWidth() - mWidth / 2))+mWidth/9, 0, 0);
+            mScroller.fling(getScrollX(), 0, -(int) velocityX, 0, -mWidth / 2 - mWidth / 9, ((int) (mScalesManager.getTotalScaleWidth() - mWidth / 2)) + mWidth / 9, 0, 0);
             ViewCompat.postInvalidateOnAnimation(this);
         }
         return true;
