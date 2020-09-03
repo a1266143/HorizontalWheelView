@@ -37,6 +37,9 @@ public class HorizontalWheelView extends View {
     private SCROLLTYPE mType;
     //-----------------------------------------------------------------------------------
 
+    //---------------------------------------球--------------------------------------
+    private Ball mBallCenter;
+
     private GestureDetectorCompat mGestureDetector;
     private Scroller mScroller;
 
@@ -77,13 +80,10 @@ public class HorizontalWheelView extends View {
         }
     }
 
-    private int mAction;
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mAction = event.getAction();
         boolean result = mGestureDetector.onTouchEvent(event);
-        if (mAction == MotionEvent.ACTION_UP) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
             boolean isFinish = mScroller.isFinished();
             if (isFinish) {//只scroll但是没有Fling，这时候需要纠正距离
                 float dx = mScalesManager.correctOffsetX(getScrollX(), mOffsetXFix);
@@ -106,15 +106,25 @@ public class HorizontalWheelView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         mScalesManager = new ScalesDiscreteManager(getContext(), w, h);
         List<String> datas = new ArrayList<>();
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 3; i++) {
             datas.add("" + i);
         }
         mScalesManager.setDiscreteDatas(datas);
         this.mWidth = w;
         this.mHeight = h;
         mOffsetXFix = mWidth / 2;
+        initBall();
         //初始化到中间
         scrollTo(-mOffsetXFix, 0);
+    }
+
+    private void initBall(){
+        mBallCenter = new Ball();
+        mBallCenter.x = mScalesManager.getCenterScale().mStartX;
+        mBallCenter.y = 5;
+        mBallCenter.radius = 5;
+        mBallCenter.alpha = 1;
+        mBallCenter.color = Color.WHITE;
     }
 
     @Override
@@ -122,12 +132,21 @@ public class HorizontalWheelView extends View {
         super.onDraw(canvas);
         drawScales(canvas);
         drawCenterLine(canvas);
+        drawCenterBall(canvas);
     }
 
     private void drawCenterLine(Canvas canvas) {
         mPaintScale.setColor(Color.WHITE);
         mPaintScale.setAlpha(255);
         canvas.drawLine(getScrollX() + mWidth / 2.f, 0, getScrollX() + mWidth / 2.f, mHeight, mPaintScale);
+    }
+
+    private Paint mPaintBall = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    private void drawCenterBall(Canvas canvas){
+        mPaintBall.setColor(mBallCenter.color);
+        mPaintBall.setAlpha((int) (mBallCenter.alpha*255));
+        canvas.drawCircle(mBallCenter.x,mBallCenter.y,mBallCenter.radius,mPaintBall);
     }
 
 

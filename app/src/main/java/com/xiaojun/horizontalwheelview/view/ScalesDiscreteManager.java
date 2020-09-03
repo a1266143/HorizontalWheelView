@@ -2,6 +2,7 @@ package com.xiaojun.horizontalwheelview.view;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 
 import com.xiaojun.horizontalwheelview.util.ScreenUtils;
 
@@ -90,6 +91,22 @@ public class ScalesDiscreteManager {
      */
     public int getFinalStopIndex() {
         return mIndex;
+    }
+
+    /**
+     * 获取中间的刻度
+     * @return
+     */
+    public Scale getCenterScale(){
+        if (mNumOfBigScale <= 0)
+            return null;
+        if (mNumOfBigScale <= 2){
+            return mScales.get(0);
+        }else{
+            int realIndex = (mNumOfBigScale/2)+mNumOfSmallScale*(mNumOfBigScale/2);
+            Log.e("xiaojun","realIndex="+realIndex+",numOfBigScale="+mNumOfBigScale+",numOfSmallScale="+mNumOfSmallScale);
+            return mScales.get(realIndex);
+        }
     }
 
     //----------------------------------------------------------------------------------------
