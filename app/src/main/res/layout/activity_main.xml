@@ -22,12 +22,15 @@
         android:id="@+id/edt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:textColor="@android:color/white"
+        android:inputType="number"
+        android:autofillHints="@string/app_name"
         />
 
     <Button
+        android:id="@+id/btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -35,6 +38,18 @@
         app:layout_constraintTop_toBottomOf="@id/edt"
         android:onClick="click"
         android:text="Confirm"
+        />
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn"
+        android:textColor="@android:color/white"
+        tools:text="72"
+        android:textSize="72dp"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

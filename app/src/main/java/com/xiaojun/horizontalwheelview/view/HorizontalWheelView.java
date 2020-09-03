@@ -45,6 +45,7 @@ public class HorizontalWheelView extends View {
 
     private GestureDetectorCompat mGestureDetector;
     private Scroller mScroller;
+    private OnProgressChangeListener mListener;
 
 
     public HorizontalWheelView(Context context) {
@@ -169,7 +170,8 @@ public class HorizontalWheelView extends View {
                     if (mScalesManager.getCenterScale().mStartX == (getScrollX() + mOffsetXFix)) {
                         mBallManager.dismissBall();
                     }
-                    Toast.makeText(getContext(), "" + mScalesManager.getFinalStopIndex(), Toast.LENGTH_SHORT).show();
+                    if (mListener!=null)
+                        mListener.onProgressSelected(mScalesManager.getFinalStopIndex());
                 }
             }
         }
@@ -186,6 +188,14 @@ public class HorizontalWheelView extends View {
         mBallManager.showBall();
         mScroller.startScroll(getScrollX(), 0, (int) mScalesManager.getDxFromPosition(getScrollX(), position), 0);
         ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    /**
+     * 设置进度改变监听器
+     * @param listener
+     */
+    public void setOnProgressChangeListener(OnProgressChangeListener listener) {
+        this.mListener = listener;
     }
 
     /**
