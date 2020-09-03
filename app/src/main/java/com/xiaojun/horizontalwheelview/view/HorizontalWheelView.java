@@ -112,6 +112,8 @@ public class HorizontalWheelView extends View {
         this.mWidth = w;
         this.mHeight = h;
         mOffsetXFix = mWidth / 2;
+        //初始化到中间
+        scrollTo(-mOffsetXFix,0);
     }
 
     @Override

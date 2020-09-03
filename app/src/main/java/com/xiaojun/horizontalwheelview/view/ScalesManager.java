@@ -2,9 +2,7 @@ package com.xiaojun.horizontalwheelview.view;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 
-import com.xiaojun.horizontalwheelview.SCROLLTYPE;
 import com.xiaojun.horizontalwheelview.util.ScreenUtils;
 
 import java.util.ArrayList;
@@ -23,12 +21,15 @@ public class ScalesManager {
     private int mNumOfBigScale;//大刻度的总数量
     private Context mContext;
     private List<Scale> mScales = new ArrayList<>();
+    private float mStartX;
 
     public ScalesManager(Context context, int canvasWidth, int canvasHeight) {
         this.mContext = context;
         this.mCanvasWidth = canvasWidth;
         this.mCanvasHeight = canvasHeight;
     }
+
+    //--------------------------------------------对外接口--------------------------------------------------
 
     /**
      * 设置离散型数据集
@@ -40,6 +41,52 @@ public class ScalesManager {
         init(datas);
     }
 
+    /**
+     * 根据当前数据类型，纠正距离
+     *
+     * @param type           数据类型
+     * @param currentScrollX 当前的偏移距离
+     * @param startX         需要滑动到的起始点(现在目前是ViewWidth/2)
+     */
+    public float correctOffsetXByType(DataType type, float currentScrollX, float startX) {
+        mStartX = startX;
+        if (type == DataType.DISCRETE) {//离散型数据
+            return correctDiscrete(currentScrollX);
+        } else if (type == DataType.CONTINUED) {//连续型数据
+            return correctContinued();
+        }
+        return 0;
+    }
+
+
+    /**
+     * 获取所有刻度列表
+     *
+     * @return
+     */
+    public List<Scale> getScales() {
+        return mScales;
+    }
+
+    /**
+     * 获取刻度间的固定距离
+     *
+     * @return
+     */
+    public float getScalesFixDistance() {
+        return mScalesFixDistance;
+    }
+
+    /**
+     * 获取所有刻度的总长度
+     *
+     * @return
+     */
+    public float getTotalScaleWidth() {
+        return mTotalScaleWidth;
+    }
+
+    //----------------------------------------------------------------------------------------
 
     /**
      * 初始化所有的刻度坐标
@@ -76,32 +123,6 @@ public class ScalesManager {
         mNumOfBigScale = datas.size();
     }
 
-    private float mStartX;
-
-    /**
-     * 根据当前数据类型，纠正距离
-     *
-     * @param type           数据类型
-     * @param currentScrollX 当前的偏移距离
-     * @param startX         需要滑动到的起始点(现在目前是ViewWidth/2)
-     */
-    public float correctOffsetXByType(DataType type, float currentScrollX, float startX) {
-        mStartX = startX;
-        if (type == DataType.DISCRETE) {//离散型数据
-            return correctDiscrete(currentScrollX);
-        } else if (type == DataType.CONTINUED) {//连续型数据
-            return correctContinued();
-        }
-        return 0;
-    }
-
-    /**
-     * TODO 纠正连续型数据对应的偏移量
-     */
-    private float correctContinued() {
-        return 0;
-    }
-
     /**
      * 纠正离散型数据对应View的偏移量
      * 离散型数据,只考虑偏移到某个大刻度上
@@ -122,9 +143,14 @@ public class ScalesManager {
         }
         //剩余的正常部分
         else {
-            if (scrollX > 0||scrollX<0) {
-                if (index % ((int) index) >= 0.5f) {
-                    index += 1;
+            if (scrollX > 0 || scrollX < 0) {
+                if (index >= 1) {
+                    if (index % ((int) index) >= 0.5f) {
+                        index += 1;
+                    }
+                } else {
+                    if (index >= 0.5f)
+                        index += 1;
                 }
                 float bigScaleWidth = (int) index * bigScalesDistance;
                 return bigScaleWidth - startOffset;
@@ -134,30 +160,10 @@ public class ScalesManager {
     }
 
     /**
-     * 获取所有刻度列表
-     *
-     * @return
+     * TODO 纠正连续型数据对应的偏移量
      */
-    public List<Scale> getScales() {
-        return mScales;
-    }
-
-    /**
-     * 获取刻度间的固定距离
-     *
-     * @return
-     */
-    public float getScalesFixDistance() {
-        return mScalesFixDistance;
-    }
-
-    /**
-     * 获取所有刻度的总长度
-     *
-     * @return
-     */
-    public float getTotalScaleWidth() {
-        return mTotalScaleWidth;
+    private float correctContinued() {
+        return 0;
     }
 
 }
