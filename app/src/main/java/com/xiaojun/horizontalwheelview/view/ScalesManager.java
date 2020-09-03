@@ -48,7 +48,7 @@ public class ScalesManager {
         float offsetXfix = ScreenUtils.dp2px(mContext, 12);//刻度与刻度之间固定的距离
         float totalOffsetX = 0;
         float strokeWidth = ScreenUtils.dp2px(mContext, 1);
-        float strokeHeightBigScale = ScreenUtils.dp2px(mContext, 24);//大刻度的高度
+        float strokeHeightBigScale = ScreenUtils.dp2px(mContext, 12);//大刻度的高度
         float strokeHeightSmallScale = ScreenUtils.dp2px(mContext, 12);//小刻度的高度
         int sizeofDatas = datas.size();
         int sizeofDatasSpecial = sizeofDatas - 1;
@@ -64,7 +64,7 @@ public class ScalesManager {
             if (i < sizeofDatasSpecial) {
                 //新建小刻度
                 for (int j = 0; j < smallScaleNumber; j++) {
-                    Scale smallScale = new Scale(strokeWidth, strokeHeightSmallScale, totalOffsetX, Color.WHITE, 1, Scale.TYPE.SMALL);
+                    Scale smallScale = new Scale(strokeWidth, strokeHeightSmallScale, totalOffsetX, Color.WHITE, 0.5f, Scale.TYPE.SMALL);
                     mScales.add(smallScale);
                     totalOffsetX += offsetXfix;
                 }
@@ -122,12 +122,15 @@ public class ScalesManager {
         }
         //剩余的正常部分
         else {
-            //TODO 暂时全部要index
-            float dx = mScales.get((int) (scrollX/bigScalesDistance)).mStartX+mStartX - startOffset;
-            Log.e("xiaojun","dx2="+dx+",index="+index+",startOffset="+startOffset+",bigScalesDistance="+bigScalesDistance);
-            return dx;
+            if (scrollX > 0||scrollX<0) {
+                if (index % ((int) index) >= 0.5f) {
+                    index += 1;
+                }
+                float bigScaleWidth = (int) index * bigScalesDistance;
+                return bigScaleWidth - startOffset;
+            }
+            return 0;
         }
-//            return 0;
     }
 
     /**

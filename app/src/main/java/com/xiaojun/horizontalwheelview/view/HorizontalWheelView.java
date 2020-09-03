@@ -33,6 +33,7 @@ public class HorizontalWheelView extends View {
     private ScalesManager mScalesManager;
     private int mWidth, mHeight;
     private int mOffsetXFix;//固定偏移距离
+    private SCROLLTYPE mType;
     //-----------------------------------------------------------------------------------
 
     private GestureDetectorCompat mGestureDetector;
@@ -94,7 +95,7 @@ public class HorizontalWheelView extends View {
     private void scrollToCorrespondingPosition(float dx) {
         mType = SCROLLTYPE.PROGRAM;
         if (dx != 0) {
-            mScroller.startScroll(getScrollX(), 0, (int) dx, 0, 300);
+            mScroller.startScroll(getScrollX(), 0, (int) dx, 0, 150);
             ViewCompat.postInvalidateOnAnimation(this);
         }
     }
@@ -121,14 +122,12 @@ public class HorizontalWheelView extends View {
     }
 
     private void drawCenterLine(Canvas canvas) {
-        mPaintScale.setColor(Color.RED);
+        mPaintScale.setColor(Color.WHITE);
         mPaintScale.setAlpha(255);
         canvas.drawLine(getScrollX() + mWidth / 2.f, 0, getScrollX() + mWidth / 2.f, mHeight, mPaintScale);
     }
 
-    private SCROLLTYPE mType;
 
-    private boolean isCorrectionScroll;//是否在修正滑动
 
     @Override
     public void computeScroll() {
@@ -153,8 +152,8 @@ public class HorizontalWheelView extends View {
     private void drawScales(Canvas canvas) {
         List<Scale> list = mScalesManager.getScales();
         for (Scale scale : list) {
-            mPaintScale.setAlpha((int) (scale.mAlpha * 255));
             mPaintScale.setColor(scale.mStrokeColor);
+            mPaintScale.setAlpha((int) (scale.mAlpha * 255));
             mPaintScale.setStrokeWidth(scale.mStrokeWidth);
             canvas.drawLine(scale.mStartX, mHeight - scale.mStartY, scale.mEndX, mHeight - scale.mEndY, mPaintScale);
         }
@@ -174,7 +173,6 @@ public class HorizontalWheelView extends View {
         else if (getScrollX() < -mOffsetXFix)
             distanceX *= 0.4f;
         scrollBy((int) distanceX, 0);
-        Log.e("xiaojun", "e1.getAction()=" + e1.getAction() + ",e2.getAction()=" + e2.getAction() + ",mAction=" + mAction);
         return true;
     }
 
@@ -182,8 +180,8 @@ public class HorizontalWheelView extends View {
         mScroller.forceFinished(true);
         if (flingCondition(velocityX)) {
             mType = SCROLLTYPE.FLING;
-//            velocityX /= 2;//将速度减小到一半
-            mScroller.fling(getScrollX(), 0, -(int) velocityX, 0, -mWidth / 2, ((int) (mScalesManager.getTotalScaleWidth() - mWidth / 2)), 0, 0);
+            velocityX *= 0.9f;//将速度减小到一半
+            mScroller.fling(getScrollX(), 0, -(int) velocityX, 0, -mWidth / 2-mWidth/9, ((int) (mScalesManager.getTotalScaleWidth() - mWidth / 2))+mWidth/9, 0, 0);
             ViewCompat.postInvalidateOnAnimation(this);
         }
         return true;
