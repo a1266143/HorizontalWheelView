@@ -68,11 +68,11 @@ public class MainActivity extends AppCompatActivity {
 //        int position = Integer.parseInt(mEdt.getText().toString());
 //        mView.scrollToPosition(position);
         List<String> list = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 50; i++) {
             list.add("");
         }
         if (mType == TYPE.DISCRETE){
-            mView.setDatas(list, 0, TYPE.CONTINUED);
+            mView.setDatas(list, 25, TYPE.CONTINUED);
             mType = TYPE.CONTINUED;
         }
         else{
