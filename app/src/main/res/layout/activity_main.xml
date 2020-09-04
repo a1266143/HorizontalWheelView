@@ -14,7 +14,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvRight"
         app:layout_constraintRight_toRightOf="parent"
-        android:background="#222"
+        android:background="#000"
         />
 
     <EditText

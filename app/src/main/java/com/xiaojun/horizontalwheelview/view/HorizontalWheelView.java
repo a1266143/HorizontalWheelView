@@ -116,8 +116,10 @@ public class HorizontalWheelView extends View {
         //固定偏移距离
         this.mOffsetXFix = mWidth / 2;
         if (mScalesManager != null && mScalesManager.getInitPosition() != mScalesManager.getFinalStopIndex() && mScalesManager.getInitPosition() != -1) {
-            scrollTo((int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition()) - mOffsetXFix, 0);
-            ViewCompat.postInvalidateOnAnimation(this);
+            int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
+            scrollTo(dx - mOffsetXFix, 0);
+            correctPosition();
+//            ViewCompat.postInvalidateOnAnimation(this);
             mScalesManager.setInitPosition(-1);
         }
     }
@@ -146,12 +148,15 @@ public class HorizontalWheelView extends View {
         if (event.getAction() == MotionEvent.ACTION_UP) {
             setCenterLine(Color.WHITE);
             boolean isFinish = mScroller.isFinished();
-            if (isFinish) {//只scroll但是没有Fling，这时候需要纠正距离
-                float dx = mScalesManager.correctOffsetX(getScrollX(), mOffsetXFix);
-                scrollToCorrespondingPosition(dx);
-            }
+            if (isFinish) //只scroll但是没有Fling，这时候需要纠正距离
+                correctPosition();
         }
         return result;
+    }
+
+    private void correctPosition() {
+        float dx = mScalesManager.correctOffsetX(getScrollX(), mOffsetXFix);
+        scrollToCorrespondingPosition(dx);
     }
 
     private void scrollToCorrespondingPosition(float dx) {
@@ -171,8 +176,10 @@ public class HorizontalWheelView extends View {
      * 外部设置数据
      *
      * @param datas
+     * @param initIndex 初始滑动到的index
+     * @param dataType  数据类型
      */
-    public void setDatas(List<String> datas, int initIndex) {
+    public void setDatas(List<String> datas, int initIndex, TYPE dataType) {
         if (datas == null || datas.size() == 0)
             return;
         int size = datas.size();
@@ -180,7 +187,7 @@ public class HorizontalWheelView extends View {
             return;
         if (mScalesManager == null)
             mScalesManager = new ScalesDiscreteManager(getContext());
-        mScalesManager.setDiscreteDatas(datas, initIndex);
+        mScalesManager.setDatas(datas, initIndex, dataType);
         initBall();
     }
 
@@ -199,7 +206,7 @@ public class HorizontalWheelView extends View {
         if (centerScale == null)
             return;
         mBallCenter.x = centerScale.mStartX;
-        mBallCenter.y = ScreenUtils.dp2px(getContext(), 3)*2;
+        mBallCenter.y = ScreenUtils.dp2px(getContext(), 3) * 4;
         mBallCenter.radius = ScreenUtils.dp2px(getContext(), 3);
         mBallCenter.alpha = 1;
         mBallCenter.color = Color.WHITE;
@@ -240,8 +247,7 @@ public class HorizontalWheelView extends View {
         } else {
             if (mType == SCROLLTYPE.FLING) {
                 mType = SCROLLTYPE.PROGRAM;
-                float dx = mScalesManager.correctOffsetX(getScrollX(), mOffsetXFix);
-                scrollToCorrespondingPosition(dx);
+                correctPosition();
             } else {
                 if (mType == SCROLLTYPE.PROGRAM) {//startScroll结束
                     mType = SCROLLTYPE.NONE;
@@ -338,6 +344,9 @@ public class HorizontalWheelView extends View {
 
     private boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if (mScalesManager == null)
+            return false;
+        //过滤掉这些fling
+        if (velocityX > -500 && velocityX < 500)
             return false;
         mScroller.forceFinished(true);
         if (flingCondition(velocityX)) {

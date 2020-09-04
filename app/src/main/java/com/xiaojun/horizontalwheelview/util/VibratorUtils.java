@@ -19,7 +19,7 @@ public class VibratorUtils {
         this.mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         mHasVibrator = mVibrator.hasVibrator();
         if (mHasVibrator)
-            mVibrationEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK);
+            mVibrationEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK);
     }
 
     /**

@@ -22,8 +22,9 @@ public class ScalesDiscreteManager {
     private Context mContext;
     private List<Scale> mScales = new ArrayList<>();
     private float mStartX;//固定的Scroll距离，现在是viewWidth/2
-    private int mIndex;//纠正过后的index
+    private int mIndex = -1;//纠正过后的index
     private int mInitPosition = -1;//初始Position
+    private TYPE mType = TYPE.DISCRETE;//默认数据类型为离散型
 
     public ScalesDiscreteManager(Context context) {
         this.mContext = context;
@@ -36,23 +37,25 @@ public class ScalesDiscreteManager {
      *
      * @param datas
      */
-    public void setDiscreteDatas(List<String> datas,int initPosition) {
-        if (datas == null||datas.size() == 0)
+    public void setDatas(List<String> datas, int initPosition, TYPE type) {
+        if (datas == null || datas.size() == 0)
             return;
         mScales.clear();
         this.mInitPosition = initPosition;
+        this.mType = type;
         init(datas);
     }
 
     /**
      * 获取初始Position
+     *
      * @return
      */
-    public int getInitPosition(){
+    public int getInitPosition() {
         return mInitPosition;
     }
 
-    public void setInitPosition(int index){
+    public void setInitPosition(int index) {
         this.mInitPosition = index;
     }
 
@@ -87,17 +90,6 @@ public class ScalesDiscreteManager {
     }
 
     /**
-     * 去到对应离散刻度index的位移距离
-     *
-     * @param scrollX 当前X轴位移距离
-     * @param index   索引
-     * @return 返回对应滑动的距离，带有方向(正负号)
-     */
-    public float GotoIndex(float scrollX, int index) {
-        return 0;
-    }
-
-    /**
      * 返回最终停下的index索引
      *
      * @return
@@ -118,7 +110,6 @@ public class ScalesDiscreteManager {
             return mScales.get(0);
         } else {
             int realIndex = (mNumOfBigScale / 2) + mNumOfSmallScale * (mNumOfBigScale / 2);
-            Log.e("xiaojun", "realIndex=" + realIndex + ",numOfBigScale=" + mNumOfBigScale + ",numOfSmallScale=" + mNumOfSmallScale);
             return mScales.get(realIndex);
         }
     }
@@ -146,38 +137,40 @@ public class ScalesDiscreteManager {
 
     /**
      * 是否正通过某个index
+     *
      * @param scrollX
      * @return
      */
     public boolean isThroughPosition(float scrollX) {
         float realScrollX = scrollX + mStartX;
-        int index = (int) (realScrollX / (mScalesFixDistance * (mNumOfSmallScale+1)));
+        int index = (int) (realScrollX / (mScalesFixDistance * (mNumOfSmallScale + 1)));
         if (index >= mNumOfBigScale)
             return false;
-        if (index != mLastIndex){
+        else if (index < 0)
+            return false;
+        if (index != mLastIndex) {
             mLastIndex = index;
-            Log.e("xiaojun","dangqian index = "+index);
             return true;
         }
         return false;
     }
 
-    public int getIndex(){
+    public int getIndex() {
         return mLastIndex;
     }
 
 
     /**
      * 获取当前正在经过的index
+     *
      * @param scrollX
      * @return
      */
-    public int getCurrentIndex(float scrollX){
+    public int getCurrentIndex(float scrollX) {
         float realScrollX = scrollX + mStartX;
         int index = (int) (realScrollX / (mScalesFixDistance * mNumOfSmallScale));
-        float _index = realScrollX/(mScalesFixDistance*mNumOfSmallScale);
+        float _index = realScrollX / (mScalesFixDistance * mNumOfSmallScale);
         return 0;
-//        if ()
     }
 
     //----------------------------------------------------------------------------------------
@@ -193,7 +186,7 @@ public class ScalesDiscreteManager {
         float strokeHeightSmallScale = ScreenUtils.dp2px(mContext, 12);//小刻度的高度
         int sizeofDatas = datas.size();
         int sizeofDatasSpecial = sizeofDatas - 1;
-        int smallScaleNumber = 5;
+        int smallScaleNumber = mType == TYPE.DISCRETE ?5:0;
         for (int i = 0; i < sizeofDatas; i++) {
             //大刻度
             Scale bigScale = new Scale(strokeWidth, strokeHeightBigScale, totalOffsetX, Color.WHITE, 1, Scale.TYPE.BIG);
@@ -205,6 +198,9 @@ public class ScalesDiscreteManager {
                 //小刻度
                 for (int j = 0; j < smallScaleNumber; j++) {
                     Scale smallScale = new Scale(strokeWidth, strokeHeightSmallScale, totalOffsetX, Color.WHITE, 0.45f, Scale.TYPE.SMALL);
+                    //连续型数据，小刻度透明度为0
+                    if (mType == TYPE.CONTINUED)
+                        smallScale.mAlpha = 0;
                     mScales.add(smallScale);
                     totalOffsetX += offsetXfix;
                 }
@@ -239,14 +235,15 @@ public class ScalesDiscreteManager {
         //剩余的正常部分
         else {
             if (scrollX > 0 || scrollX < 0) {
-                if (index >= 1) {
+                //TODO 大于一半就滑动到下一个index，但是实际使用时发现体验不好，暂时取消
+                /*if (index >= 1) {
                     if (index % ((int) index) >= 0.5f) {
                         index += 1;
                     }
                 } else {
                     if (index >= 0.5f)
                         index += 1;
-                }
+                }*/
                 mIndex = (int) index;
                 float bigScaleWidth = (int) index * bigScalesDistance;
                 return bigScaleWidth - startOffset;

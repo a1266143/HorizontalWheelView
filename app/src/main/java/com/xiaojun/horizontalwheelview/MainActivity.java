@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.xiaojun.horizontalwheelview.view.HorizontalWheelView;
 import com.xiaojun.horizontalwheelview.view.OnProgressChangeListener;
+import com.xiaojun.horizontalwheelview.view.TYPE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +41,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         List<String> list = new ArrayList<>(10);
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 100; i++) {
             list.add("");
         }
-        mView.setDatas(list,10);
+        mView.setDatas(list,99, TYPE.DISCRETE);
     }
 
     public void click(View view){
