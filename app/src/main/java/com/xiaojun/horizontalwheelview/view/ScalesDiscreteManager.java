@@ -191,7 +191,7 @@ public class ScalesDiscreteManager {
         float strokeHeightSmallScale = ScreenUtils.dp2px(mContext, 12);//小刻度的高度
         int sizeofDatas = datas.size();
         int sizeofDatasSpecial = sizeofDatas - 1;
-        int smallScaleNumber = 4;
+        int smallScaleNumber = 8;
         for (int i = 0; i < sizeofDatas; i++) {
             //大刻度
             Scale bigScale = new Scale(strokeWidth, strokeHeightBigScale, totalOffsetX, Color.WHITE, 1, Scale.TYPE.BIG);
@@ -202,7 +202,7 @@ public class ScalesDiscreteManager {
                 totalOffsetX += offsetXfix;
                 //小刻度
                 for (int j = 0; j < smallScaleNumber; j++) {
-                    Scale smallScale = new Scale(strokeWidth, strokeHeightSmallScale, totalOffsetX, Color.WHITE, 0.5f, Scale.TYPE.SMALL);
+                    Scale smallScale = new Scale(strokeWidth, strokeHeightSmallScale, totalOffsetX, Color.WHITE, 0.65f, Scale.TYPE.SMALL);
                     mScales.add(smallScale);
                     totalOffsetX += offsetXfix;
                 }

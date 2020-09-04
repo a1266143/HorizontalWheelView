@@ -21,6 +21,7 @@ import androidx.core.view.ViewCompat;
 
 import com.xiaojun.horizontalwheelview.SCROLLTYPE;
 import com.xiaojun.horizontalwheelview.util.ScreenUtils;
+import com.xiaojun.horizontalwheelview.util.VibratorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,12 +46,12 @@ public class HorizontalWheelView extends View {
     private Ball mBallCenter;
     private BallManager mBallManager;
     private Paint mPaintBall = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private CenterLine mCenterLine = new CenterLine();
 
     private GestureDetectorCompat mGestureDetector;
     private Scroller mScroller;
     private OnProgressChangeListener mListener;
-    private Vibrator mVb;
-    private VibrationEffect mVe;
+    private VibratorUtils mVibratorUtils;
 
 
     public HorizontalWheelView(Context context) {
@@ -71,8 +72,7 @@ public class HorizontalWheelView extends View {
         mGestureDetector = new GestureDetectorCompat(getContext(), new MySimpleOnGestureListener());
         mScroller = new Scroller(getContext());
 
-        mVb = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
-//        mVe = VibrationEffect.createOneShot(10,VibrationEffect.DEFAULT_AMPLITUDE)
+        mVibratorUtils = new VibratorUtils(getContext());
     }
 
     class MySimpleOnGestureListener extends SimpleOnGestureListener {
@@ -96,6 +96,7 @@ public class HorizontalWheelView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         boolean result = mGestureDetector.onTouchEvent(event);
         if (event.getAction() == MotionEvent.ACTION_UP) {
+            setCenterLine(Color.WHITE);
             boolean isFinish = mScroller.isFinished();
             if (isFinish) {//只scroll但是没有Fling，这时候需要纠正距离
                 float dx = mScalesManager.correctOffsetX(getScrollX(), mOffsetXFix);
@@ -125,10 +126,19 @@ public class HorizontalWheelView extends View {
         mOffsetXFix = mWidth / 2;
         mScalesManager = new ScalesDiscreteManager(getContext(), w, h, mOffsetXFix);
         mScalesManager.setDiscreteDatas(datas);
-
         initBall();
         //初始化到中间
         scrollTo(-mOffsetXFix, 0);
+        setCenterLine(Color.WHITE);
+    }
+
+    private void setCenterLine(int color) {
+        mCenterLine.startX = (int) (getScrollX() + mWidth / 2.f);
+        mCenterLine.startY = 0;
+        mCenterLine.endX = mCenterLine.startX;
+        mCenterLine.endY = (int) (mHeight - mUpMove);
+        mCenterLine.color = color;
+        mCenterLine.alpha = 1;
     }
 
     private void initBall() {
@@ -150,9 +160,9 @@ public class HorizontalWheelView extends View {
     }
 
     private void drawCenterLine(Canvas canvas) {
-        mPaintScale.setColor(Color.WHITE);
-        mPaintScale.setAlpha(255);
-        canvas.drawLine(getScrollX() + mWidth / 2.f, 0, getScrollX() + mWidth / 2.f, mHeight, mPaintScale);
+        mPaintScale.setColor(mCenterLine.color);
+        mPaintScale.setAlpha((int) (mCenterLine.alpha * 255));
+        canvas.drawLine(mCenterLine.startX, mCenterLine.startY, mCenterLine.endX, mCenterLine.endY, mPaintScale);
     }
 
     private void drawCenterBall(Canvas canvas) {
@@ -167,20 +177,21 @@ public class HorizontalWheelView extends View {
         if (mScroller.computeScrollOffset()) {
             scrollTo(mScroller.getCurrX(), 0);
             vibrate(false);
+            setCenterLine(Color.WHITE);
             ViewCompat.postInvalidateOnAnimation(this);
         } else {
             if (mType == SCROLLTYPE.FLING) {
+                mType = SCROLLTYPE.PROGRAM;
                 float dx = mScalesManager.correctOffsetX(getScrollX(), mOffsetXFix);
                 scrollToCorrespondingPosition(dx);
             } else {
                 if (mType == SCROLLTYPE.PROGRAM) {//startScroll结束
                     mType = SCROLLTYPE.NONE;
-//                    vibrate(false);
+                    setCenterLine(Color.WHITE);
                     //滑动到中间需要使球消失
-                    if (mScalesManager.getCenterScale().mStartX == (getScrollX() + mOffsetXFix)) {
+                    if (mScalesManager.getCenterScale().mStartX == (getScrollX() + mOffsetXFix))
                         mBallManager.dismissBall();
-                    }
-                    if (mListener!=null){
+                    if (mListener != null) {
                         mListener.onProgressSelected(mScalesManager.getFinalStopIndex());
                     }
 
@@ -189,18 +200,11 @@ public class HorizontalWheelView extends View {
         }
     }
 
-    /**
-     * 强制震动
-     */
-    private void vibrateForce(){
-        mVb.vibrate(15);
-    }
-
-    private void vibrate(boolean fromUser){
-        if (mScalesManager.isThroughPosition(getScrollX())){
-            mVb.vibrate(15);
-            if (mListener!=null)
-                mListener.onProgressChange(mScalesManager.getIndex(),fromUser);
+    private void vibrate(boolean fromUser) {
+        if (mScalesManager.isThroughPosition(getScrollX())) {
+            mVibratorUtils.vibrate();
+            if (mListener != null)
+                mListener.onProgressChange(mScalesManager.getIndex(), fromUser);
         }
     }
 
@@ -219,11 +223,14 @@ public class HorizontalWheelView extends View {
 
     /**
      * 设置进度改变监听器
+     *
      * @param listener
      */
     public void setOnProgressChangeListener(OnProgressChangeListener listener) {
         this.mListener = listener;
     }
+
+    private float mUpMove = ScreenUtils.dp2px(getContext(), 8);
 
     /**
      * 绘制所有刻度
@@ -236,13 +243,14 @@ public class HorizontalWheelView extends View {
             mPaintScale.setColor(scale.mStrokeColor);
             mPaintScale.setAlpha((int) (scale.mAlpha * 255));
             mPaintScale.setStrokeWidth(scale.mStrokeWidth);
-            canvas.drawLine(scale.mStartX, mHeight - scale.mStartY, scale.mEndX, mHeight - scale.mEndY, mPaintScale);
+            canvas.drawLine(scale.mStartX, mHeight - scale.mStartY - mUpMove, scale.mEndX, mHeight - scale.mEndY - mUpMove, mPaintScale);
         }
     }
 
     private boolean onDown(MotionEvent e) {
         mScroller.forceFinished(true);
         ViewCompat.postInvalidateOnAnimation(this);
+        setCenterLine(Color.parseColor("#FFAB00"));
         return true;
     }
 
@@ -255,6 +263,7 @@ public class HorizontalWheelView extends View {
         scrollBy((int) distanceX, 0);
         //判断当前的scrollX是否在BigScale线段内
         vibrate(true);
+        setCenterLine(Color.parseColor("#FFAB00"));
         mBallManager.showBall();
         return true;
     }
