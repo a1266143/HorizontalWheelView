@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class ScalesDiscreteManager {
 
-    private int mCanvasWidth, mCanvasHeight;
     private float mTotalScaleWidth;
     private float mScalesFixDistance;//每两个刻度间的距离
     private int mNumOfSmallScale;//两个大刻度之间的小刻度数量
@@ -24,12 +23,10 @@ public class ScalesDiscreteManager {
     private List<Scale> mScales = new ArrayList<>();
     private float mStartX;//固定的Scroll距离，现在是viewWidth/2
     private int mIndex;//纠正过后的index
+    private int mInitPosition = -1;//初始Position
 
-    public ScalesDiscreteManager(Context context, int canvasWidth, int canvasHeight, float offsetFix) {
+    public ScalesDiscreteManager(Context context) {
         this.mContext = context;
-        this.mCanvasWidth = canvasWidth;
-        this.mCanvasHeight = canvasHeight;
-        this.mStartX = offsetFix;
     }
 
     //--------------------------------------------对外接口--------------------------------------------------
@@ -39,9 +36,24 @@ public class ScalesDiscreteManager {
      *
      * @param datas
      */
-    public void setDiscreteDatas(List<String> datas) {
+    public void setDiscreteDatas(List<String> datas,int initPosition) {
+        if (datas == null||datas.size() == 0)
+            return;
         mScales.clear();
+        this.mInitPosition = initPosition;
         init(datas);
+    }
+
+    /**
+     * 获取初始Position
+     * @return
+     */
+    public int getInitPosition(){
+        return mInitPosition;
+    }
+
+    public void setInitPosition(int index){
+        this.mInitPosition = index;
     }
 
     /**
@@ -123,7 +135,7 @@ public class ScalesDiscreteManager {
             return 0;
         }
         this.mIndex = position;
-        float currentScrollX = scrollX + mStartX;//当前阵阵的scrollx
+        float currentScrollX = scrollX + mStartX;//当前真正的scrollx
         int realPosition = position + position * mNumOfSmallScale;//真正的position
         float correctScrollX = mScales.get(realPosition).mStartX;
         return correctScrollX - currentScrollX;
@@ -147,17 +159,7 @@ public class ScalesDiscreteManager {
             Log.e("xiaojun","dangqian index = "+index);
             return true;
         }
-
         return false;
-//        float _index = realScrollX/(mScalesFixDistance*(mNumOfSmallScale+1));
-//        float distance = Math.abs(_index-index)*((mNumOfSmallScale+1)*mScalesFixDistance);
-//        //如果当前的ScrollX在线段之中，就需要提示外部
-//        if (distance <= mScales.get(0).mStrokeWidth){
-//            Log.e("xiaojun","distance="+distance+",strokeWidth="+ mScales.get(0).mStrokeWidth);
-//            return true;
-//        }
-
-//        return false;
     }
 
     public int getIndex(){
@@ -191,7 +193,7 @@ public class ScalesDiscreteManager {
         float strokeHeightSmallScale = ScreenUtils.dp2px(mContext, 12);//小刻度的高度
         int sizeofDatas = datas.size();
         int sizeofDatasSpecial = sizeofDatas - 1;
-        int smallScaleNumber = 8;
+        int smallScaleNumber = 5;
         for (int i = 0; i < sizeofDatas; i++) {
             //大刻度
             Scale bigScale = new Scale(strokeWidth, strokeHeightBigScale, totalOffsetX, Color.WHITE, 1, Scale.TYPE.BIG);
@@ -202,7 +204,7 @@ public class ScalesDiscreteManager {
                 totalOffsetX += offsetXfix;
                 //小刻度
                 for (int j = 0; j < smallScaleNumber; j++) {
-                    Scale smallScale = new Scale(strokeWidth, strokeHeightSmallScale, totalOffsetX, Color.WHITE, 0.65f, Scale.TYPE.SMALL);
+                    Scale smallScale = new Scale(strokeWidth, strokeHeightSmallScale, totalOffsetX, Color.WHITE, 0.45f, Scale.TYPE.SMALL);
                     mScales.add(smallScale);
                     totalOffsetX += offsetXfix;
                 }

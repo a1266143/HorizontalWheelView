@@ -10,6 +10,9 @@ import android.widget.TextView;
 import com.xiaojun.horizontalwheelview.view.HorizontalWheelView;
 import com.xiaojun.horizontalwheelview.view.OnProgressChangeListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     private EditText mEdt;
@@ -36,6 +39,11 @@ public class MainActivity extends AppCompatActivity {
                 mTv.setText(position+"");
             }
         });
+        List<String> list = new ArrayList<>(10);
+        for (int i = 0; i < 20; i++) {
+            list.add("");
+        }
+        mView.setDatas(list,10);
     }
 
     public void click(View view){

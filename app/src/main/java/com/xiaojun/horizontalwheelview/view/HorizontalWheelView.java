@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.core.view.ViewCompat;
 
+import com.xiaojun.bulter.yyUtils.YyScreenUtils;
 import com.xiaojun.horizontalwheelview.SCROLLTYPE;
 import com.xiaojun.horizontalwheelview.util.ScreenUtils;
 import com.xiaojun.horizontalwheelview.util.VibratorUtils;
@@ -43,10 +44,11 @@ public class HorizontalWheelView extends View {
     //-----------------------------------------------------------------------------------
 
     //---------------------------------------球--------------------------------------
-    private Ball mBallCenter;
+    private Ball mBallCenter = new Ball();
     private BallManager mBallManager;
     private Paint mPaintBall = new Paint(Paint.ANTI_ALIAS_FLAG);
     private CenterLine mCenterLine = new CenterLine();
+
 
     private GestureDetectorCompat mGestureDetector;
     private Scroller mScroller;
@@ -82,6 +84,17 @@ public class HorizontalWheelView extends View {
         }
 
         @Override
+        public void onLongPress(MotionEvent e) {
+            super.onLongPress(e);
+            if (mScalesManager == null)
+                return;
+            setCenterLine(Color.WHITE);
+            if (mScalesManager.getCenterScale().mStartX == (getScrollX() + mOffsetXFix))
+                mBallManager.dismissBall();
+            mVibratorUtils.vibrate();
+        }
+
+        @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             return HorizontalWheelView.this.onFling(e1, e2, velocityX, velocityY);
         }
@@ -90,6 +103,41 @@ public class HorizontalWheelView extends View {
         public boolean onDown(MotionEvent e) {
             return HorizontalWheelView.this.onDown(e);
         }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        int defaultSizeWidth = getMeasuredWidth();
+        mWidth = getProperSize(defaultSizeWidth, widthMeasureSpec, true);
+        defaultSizeWidth = getMeasuredHeight();
+        mHeight = getProperSize(defaultSizeWidth, heightMeasureSpec, false);
+        setMeasuredDimension(mWidth, mHeight);
+        //固定偏移距离
+        this.mOffsetXFix = mWidth / 2;
+        if (mScalesManager != null && mScalesManager.getInitPosition() != mScalesManager.getFinalStopIndex() && mScalesManager.getInitPosition() != -1) {
+            scrollTo((int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition()) - mOffsetXFix, 0);
+            ViewCompat.postInvalidateOnAnimation(this);
+            mScalesManager.setInitPosition(-1);
+        }
+    }
+
+    private int getProperSize(int defaultSize, int measureSpec, boolean isWidth) {
+        int properSize = defaultSize;
+        int mode = MeasureSpec.getMode(measureSpec);
+        int size = MeasureSpec.getSize(measureSpec);
+        switch (mode) {
+            case MeasureSpec.EXACTLY:
+                properSize = size;
+                break;
+            case MeasureSpec.AT_MOST:
+                if (!isWidth)
+                    properSize = YyScreenUtils.dp2px(getContext(), 64);
+//                else
+//                    properSize = Math.min(size,YyScreenUtils.dp2px(getContext(),72));
+                break;
+        }
+        return properSize;
     }
 
     @Override
@@ -115,21 +163,25 @@ public class HorizontalWheelView extends View {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        List<String> datas = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            datas.add("" + i);
-        }
-        this.mWidth = w;
-        this.mHeight = h;
-        mOffsetXFix = mWidth / 2;
-        mScalesManager = new ScalesDiscreteManager(getContext(), w, h, mOffsetXFix);
-        mScalesManager.setDiscreteDatas(datas);
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+    }
+
+    /**
+     * 外部设置数据
+     *
+     * @param datas
+     */
+    public void setDatas(List<String> datas, int initIndex) {
+        if (datas == null || datas.size() == 0)
+            return;
+        int size = datas.size();
+        if (initIndex < 0 || initIndex >= size)
+            return;
+        if (mScalesManager == null)
+            mScalesManager = new ScalesDiscreteManager(getContext());
+        mScalesManager.setDiscreteDatas(datas, initIndex);
         initBall();
-        //初始化到中间
-        scrollTo(-mOffsetXFix, 0);
-        setCenterLine(Color.WHITE);
     }
 
     private void setCenterLine(int color) {
@@ -139,21 +191,27 @@ public class HorizontalWheelView extends View {
         mCenterLine.endY = (int) (mHeight - mUpMove);
         mCenterLine.color = color;
         mCenterLine.alpha = 1;
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 
     private void initBall() {
-        mBallCenter = new Ball();
-        mBallCenter.x = mScalesManager.getCenterScale().mStartX;
-        mBallCenter.y = ScreenUtils.dp2px(getContext(), 3);
+        Scale centerScale = mScalesManager.getCenterScale();
+        if (centerScale == null)
+            return;
+        mBallCenter.x = centerScale.mStartX;
+        mBallCenter.y = ScreenUtils.dp2px(getContext(), 3)*2;
         mBallCenter.radius = ScreenUtils.dp2px(getContext(), 3);
         mBallCenter.alpha = 1;
         mBallCenter.color = Color.WHITE;
-        mBallManager = new BallManager(this, mBallCenter);
+        if (mBallManager == null)
+            mBallManager = new BallManager(this, mBallCenter);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (mScalesManager == null)
+            return;
         drawScales(canvas);
         drawCenterLine(canvas);
         drawCenterBall(canvas);
@@ -200,6 +258,11 @@ public class HorizontalWheelView extends View {
         }
     }
 
+    /**
+     * 震动并progressChange
+     *
+     * @param fromUser
+     */
     private void vibrate(boolean fromUser) {
         if (mScalesManager.isThroughPosition(getScrollX())) {
             mVibratorUtils.vibrate();
@@ -230,7 +293,7 @@ public class HorizontalWheelView extends View {
         this.mListener = listener;
     }
 
-    private float mUpMove = ScreenUtils.dp2px(getContext(), 8);
+    private float mUpMove = ScreenUtils.dp2px(getContext(), 16);
 
     /**
      * 绘制所有刻度
@@ -248,6 +311,8 @@ public class HorizontalWheelView extends View {
     }
 
     private boolean onDown(MotionEvent e) {
+        if (mScalesManager == null)
+            return false;
         mScroller.forceFinished(true);
         ViewCompat.postInvalidateOnAnimation(this);
         setCenterLine(Color.parseColor("#FFAB00"));
@@ -255,6 +320,8 @@ public class HorizontalWheelView extends View {
     }
 
     private boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        if (mScalesManager == null)
+            return false;
         mType = SCROLLTYPE.SCROLL;
         if (getScrollX() > mScalesManager.getTotalScaleWidth() - mOffsetXFix)
             distanceX *= 0.4f;
@@ -264,11 +331,14 @@ public class HorizontalWheelView extends View {
         //判断当前的scrollX是否在BigScale线段内
         vibrate(true);
         setCenterLine(Color.parseColor("#FFAB00"));
-        mBallManager.showBall();
+        if (mBallManager != null)
+            mBallManager.showBall();
         return true;
     }
 
     private boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        if (mScalesManager == null)
+            return false;
         mScroller.forceFinished(true);
         if (flingCondition(velocityX)) {
             mType = SCROLLTYPE.FLING;
