@@ -119,7 +119,6 @@ public class HorizontalWheelView extends View {
             int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
             scrollTo(dx - mOffsetXFix, 0);
             correctPosition();
-//            ViewCompat.postInvalidateOnAnimation(this);
             mScalesManager.setInitPosition(-1);
         }
     }
@@ -172,6 +171,9 @@ public class HorizontalWheelView extends View {
         super.onDetachedFromWindow();
     }
 
+    //是否已经初始化过
+    private boolean mSetDataAlready;
+
     /**
      * 外部设置数据
      *
@@ -189,6 +191,13 @@ public class HorizontalWheelView extends View {
             mScalesManager = new ScalesDiscreteManager(getContext());
         mScalesManager.setDatas(datas, initIndex, dataType);
         initBall();
+        if (mSetDataAlready){
+            int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
+            scrollTo(dx - mOffsetXFix, 0);
+            correctPosition();
+            ViewCompat.postInvalidateOnAnimation(this);
+        }
+        mSetDataAlready = true;
     }
 
     private void setCenterLine(int color) {
