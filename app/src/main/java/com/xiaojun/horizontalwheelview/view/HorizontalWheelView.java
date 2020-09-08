@@ -189,9 +189,12 @@ public class HorizontalWheelView extends View {
             return;
         if (mScalesManager == null)
             mScalesManager = new ScalesDiscreteManager(getContext());
+        if (mScroller!=null&&!mScroller.isFinished())
+            mScroller.forceFinished(true);
         mScalesManager.setDatas(datas, initIndex, dataType);
         initBall();
         if (mSetDataAlready){
+            scrollTo(-mOffsetXFix,0);
             int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
             scrollTo(dx - mOffsetXFix, 0);
             correctPosition();
