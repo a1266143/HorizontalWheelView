@@ -52,13 +52,9 @@ public class MainActivity extends AppCompatActivity {
                 mTv.setText(position + "");
             }
         });
-        List<String> list = new ArrayList<>(10);
-        for (int i = 0; i < 100; i++) {
-            list.add("");
-        }
-        mView.setDatas(list, 99, TYPE.CONTINUED);
+        mView.setDatas(100, 99, TYPE.CONTINUED);
 
-        mView2.setDatas(list, 50, TYPE.DISCRETE);
+        mView2.setDatas(100, 50, TYPE.DISCRETE);
     }
 
 
@@ -67,16 +63,12 @@ public class MainActivity extends AppCompatActivity {
     public void click(View view) {
 //        int position = Integer.parseInt(mEdt.getText().toString());
 //        mView.scrollToPosition(position);
-        List<String> list = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
-            list.add("");
-        }
         if (mType == TYPE.DISCRETE){
-            mView.setDatas(list, 25, TYPE.CONTINUED);
+            mView.setDatas(50, 25, TYPE.CONTINUED);
             mType = TYPE.CONTINUED;
         }
         else{
-            mView.setDatas(list, 0, TYPE.DISCRETE);
+            mView.setDatas(50, 0, TYPE.DISCRETE);
             mType = TYPE.DISCRETE;
         }
 
