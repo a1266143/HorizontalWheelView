@@ -177,21 +177,20 @@ public class HorizontalWheelView extends View {
     /**
      * 外部设置数据
      *
-     * @param datas
+     * @param size
      * @param initIndex 初始滑动到的index
      * @param dataType  数据类型
      */
-    public void setDatas(List<String> datas, int initIndex, TYPE dataType) {
-        if (datas == null || datas.size() == 0)
+    public void setDatas(int size, int initIndex, TYPE dataType) {
+        if (size <= 0)
             return;
-        int size = datas.size();
         if (initIndex < 0 || initIndex >= size)
             return;
         if (mScalesManager == null)
             mScalesManager = new ScalesDiscreteManager(getContext());
         if (mScroller!=null&&!mScroller.isFinished())
             mScroller.forceFinished(true);
-        mScalesManager.setDatas(datas, initIndex, dataType);
+        mScalesManager.setDatas(size, initIndex, dataType);
         initBall();
         if (mSetDataAlready){
             scrollTo(-mOffsetXFix,0);

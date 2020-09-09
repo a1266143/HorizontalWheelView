@@ -35,15 +35,15 @@ public class ScalesDiscreteManager {
     /**
      * 设置离散型数据集
      *
-     * @param datas
+     * @param size
      */
-    public void setDatas(List<String> datas, int initPosition, TYPE type) {
-        if (datas == null || datas.size() == 0)
+    public void setDatas(int size, int initPosition, TYPE type) {
+        if (size <= 0)
             return;
         mScales.clear();
         this.mInitPosition = initPosition;
         this.mType = type;
-        init(datas);
+        init(size);
     }
 
     /**
@@ -178,16 +178,15 @@ public class ScalesDiscreteManager {
     /**
      * 初始化所有的刻度坐标
      */
-    private void init(List<String> datas) {
+    private void init(int size) {
         float offsetXfix = ScreenUtils.dp2px(mContext, 12);//刻度与刻度之间固定的距离
         float totalOffsetX = 0;
         float strokeWidth = ScreenUtils.dp2px(mContext, 1);
         float strokeHeightBigScale = ScreenUtils.dp2px(mContext, 12);//大刻度的高度
         float strokeHeightSmallScale = ScreenUtils.dp2px(mContext, 12);//小刻度的高度
-        int sizeofDatas = datas.size();
-        int sizeofDatasSpecial = sizeofDatas - 1;
+        int sizeofDatasSpecial = size - 1;
         int smallScaleNumber = mType == TYPE.DISCRETE ?5:0;
-        for (int i = 0; i < sizeofDatas; i++) {
+        for (int i = 0; i < size; i++) {
             //大刻度
             Scale bigScale = new Scale(strokeWidth, strokeHeightBigScale, totalOffsetX, Color.WHITE, 1, Scale.TYPE.BIG);
             mScales.add(bigScale);
@@ -209,7 +208,7 @@ public class ScalesDiscreteManager {
         mTotalScaleWidth = totalOffsetX;
         mScalesFixDistance = offsetXfix;
         mNumOfSmallScale = smallScaleNumber;
-        mNumOfBigScale = datas.size();
+        mNumOfBigScale = size;
     }
 
     /**
