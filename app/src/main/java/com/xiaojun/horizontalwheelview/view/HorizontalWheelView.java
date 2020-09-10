@@ -190,14 +190,15 @@ public class HorizontalWheelView extends View {
             mScroller.forceFinished(true);
         mScalesManager.setDatas(size, initIndex, dataType);
         initBall();
-        if (mSetDataAlready) {
+        if (mSetDataAlready && mOffsetXFix != 0) {
             scrollTo(-mOffsetXFix, 0);
             int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
             scrollTo(dx - mOffsetXFix, 0);
             correctPosition();
             ViewCompat.postInvalidateOnAnimation(this);
+            mSetDataAlready = true;
         }
-        mSetDataAlready = true;
+
     }
 
     private void setCenterLine(int color) {
