@@ -21,7 +21,7 @@ public class ScalesDiscreteManager {
     private int mNumOfBigScale;//大刻度的总数量
     private Context mContext;
     private List<Scale> mScales = new ArrayList<>();
-    private float mStartX;//固定的Scroll距离，现在是viewWidth/2
+    private float mOffsetX;//固定的Scroll距离，现在是viewWidth/2
     private int mIndex = -1;//纠正过后的index
     private int mInitPosition = -1;//初始Position
     private TYPE mType = TYPE.DISCRETE;//默认数据类型为离散型
@@ -66,7 +66,7 @@ public class ScalesDiscreteManager {
      * @param startX         需要滑动到的起始点(现在目前是ViewWidth/2)
      */
     public float correctOffsetX(float currentScrollX, float startX) {
-        mStartX = startX;
+        mOffsetX = startX;
         return correctDiscrete(currentScrollX);
     }
 
@@ -126,7 +126,7 @@ public class ScalesDiscreteManager {
             return 0;
         }
         this.mIndex = position;
-        float currentScrollX = scrollX + mStartX;//当前真正的scrollx
+        float currentScrollX = scrollX + mOffsetX;//当前真正的scrollx
         int realPosition = position + position * mNumOfSmallScale;//真正的position
         float correctScrollX = mScales.get(realPosition).mStartX;
         return correctScrollX - currentScrollX;
@@ -142,7 +142,7 @@ public class ScalesDiscreteManager {
      * @return
      */
     public boolean isThroughPosition(float scrollX) {
-        float realScrollX = scrollX + mStartX;
+        float realScrollX = scrollX + mOffsetX;
         int index = (int) (realScrollX / (mScalesFixDistance * (mNumOfSmallScale + 1)));
         if (index >= mNumOfBigScale)
             return false;
@@ -159,19 +159,6 @@ public class ScalesDiscreteManager {
         return mLastIndex;
     }
 
-
-    /**
-     * 获取当前正在经过的index
-     *
-     * @param scrollX
-     * @return
-     */
-    public int getCurrentIndex(float scrollX) {
-        float realScrollX = scrollX + mStartX;
-        int index = (int) (realScrollX / (mScalesFixDistance * mNumOfSmallScale));
-        float _index = realScrollX / (mScalesFixDistance * mNumOfSmallScale);
-        return 0;
-    }
 
     //----------------------------------------------------------------------------------------
 
@@ -219,7 +206,7 @@ public class ScalesDiscreteManager {
      */
     private float correctDiscrete(float scrollX) {
         float bigScalesDistance = (mNumOfSmallScale + 1) * mScalesFixDistance;//两个大刻度之间的距离
-        float startOffset = scrollX + mStartX;
+        float startOffset = scrollX + mOffsetX;
         float index = startOffset / bigScalesDistance;
         //如果已经滑动到最右边
         if (index > (mNumOfBigScale - 1)) {

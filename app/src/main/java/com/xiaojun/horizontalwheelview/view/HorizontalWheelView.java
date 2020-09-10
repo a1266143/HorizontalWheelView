@@ -37,7 +37,7 @@ public class HorizontalWheelView extends View {
     //刻度画笔
     private Paint mPaintScale = new Paint(Paint.ANTI_ALIAS_FLAG);
     //刻度管理器
-    private ScalesDiscreteManager mScalesManager;
+    private ScalesDiscreteManager mScalesManager = new ScalesDiscreteManager(getContext());
     private int mWidth, mHeight;
     private int mOffsetXFix;//固定偏移距离
     private SCROLLTYPE mType;
@@ -115,7 +115,7 @@ public class HorizontalWheelView extends View {
         setMeasuredDimension(mWidth, mHeight);
         //固定偏移距离
         this.mOffsetXFix = mWidth / 2;
-        if (mScalesManager != null && mScalesManager.getInitPosition() != mScalesManager.getFinalStopIndex() && mScalesManager.getInitPosition() != -1) {
+        if (mScalesManager.getInitPosition() != mScalesManager.getFinalStopIndex() && mScalesManager.getInitPosition() != -1) {
             int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
             scrollTo(dx - mOffsetXFix, 0);
             correctPosition();
@@ -186,14 +186,12 @@ public class HorizontalWheelView extends View {
             return;
         if (initIndex < 0 || initIndex >= size)
             return;
-        if (mScalesManager == null)
-            mScalesManager = new ScalesDiscreteManager(getContext());
-        if (mScroller!=null&&!mScroller.isFinished())
+        if (mScroller != null && !mScroller.isFinished())
             mScroller.forceFinished(true);
         mScalesManager.setDatas(size, initIndex, dataType);
         initBall();
-        if (mSetDataAlready){
-            scrollTo(-mOffsetXFix,0);
+        if (mSetDataAlready) {
+            scrollTo(-mOffsetXFix, 0);
             int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
             scrollTo(dx - mOffsetXFix, 0);
             correctPosition();
