@@ -196,9 +196,8 @@ public class HorizontalWheelView extends View {
             scrollTo(dx - mOffsetXFix, 0);
             correctPosition();
             ViewCompat.postInvalidateOnAnimation(this);
-            mSetDataAlready = true;
         }
-
+        mSetDataAlready = true;
     }
 
     private void setCenterLine(int color) {
