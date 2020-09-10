@@ -115,6 +115,8 @@ public class HorizontalWheelView extends View {
         setMeasuredDimension(mWidth, mHeight);
         //固定偏移距离
         this.mOffsetXFix = mWidth / 2;
+        mScalesManager.setFixOffsetX(mOffsetXFix);
+        Log.e("xiaojun","HorizontalWheelView:onMeasure");
         if (mScalesManager.getInitPosition() != mScalesManager.getFinalStopIndex() && mScalesManager.getInitPosition() != -1) {
             scrollTo(-mOffsetXFix,0);
             int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
@@ -173,6 +175,18 @@ public class HorizontalWheelView extends View {
         super.onDetachedFromWindow();
     }
 
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        Log.e("xiaojun","HorizontalWheelView:onFinishInflate");
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        Log.e("xiaojun","HorizontalWheelView:onAttachedToWindow");
+    }
+
     //是否已经初始化过
     private boolean mSetDataAlready;
 
@@ -184,6 +198,7 @@ public class HorizontalWheelView extends View {
      * @param dataType  数据类型
      */
     public void setDatas(int size, int initIndex, TYPE dataType) {
+        Log.e("xiaojun","HorizontalWheelView:setDatas");
         if (size <= 0)
             return;
         if (initIndex < 0 || initIndex >= size)
@@ -195,7 +210,7 @@ public class HorizontalWheelView extends View {
         if (mSetDataAlready && mOffsetXFix != 0) {
             scrollTo(-mOffsetXFix, 0);
             int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
-            scrollTo(dx - mOffsetXFix, 0);
+            scrollBy(dx - mOffsetXFix, 0);
             correctPosition();
             setCenterLine(Color.WHITE);
             ViewCompat.postInvalidateOnAnimation(this);
@@ -229,6 +244,7 @@ public class HorizontalWheelView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Log.e("xiaojun","HorizontalWheelView:onDraw");
         if (mScalesManager == null)
             return;
         drawScales(canvas);

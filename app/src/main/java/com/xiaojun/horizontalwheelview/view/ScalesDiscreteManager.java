@@ -33,6 +33,14 @@ public class ScalesDiscreteManager {
     //--------------------------------------------对外接口--------------------------------------------------
 
     /**
+     * 设置固定偏移量
+     * @param offsetX
+     */
+    public void setFixOffsetX(float offsetX){
+        this.mOffsetX = offsetX;
+    }
+
+    /**
      * 设置离散型数据集
      *
      * @param size
@@ -69,7 +77,6 @@ public class ScalesDiscreteManager {
         mOffsetX = startX;
         return correctDiscrete(currentScrollX);
     }
-
 
     /**
      * 获取所有刻度列表
