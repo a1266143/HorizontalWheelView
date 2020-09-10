@@ -116,9 +116,11 @@ public class HorizontalWheelView extends View {
         //固定偏移距离
         this.mOffsetXFix = mWidth / 2;
         if (mScalesManager.getInitPosition() != mScalesManager.getFinalStopIndex() && mScalesManager.getInitPosition() != -1) {
+            scrollTo(-mOffsetXFix,0);
             int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
             scrollTo(dx - mOffsetXFix, 0);
             correctPosition();
+            setCenterLine(Color.WHITE);
             mScalesManager.setInitPosition(-1);
         }
     }
@@ -194,7 +196,7 @@ public class HorizontalWheelView extends View {
             scrollTo(-mOffsetXFix, 0);
             int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
             scrollTo(dx - mOffsetXFix, 0);
-//            correctPosition();
+            correctPosition();
             setCenterLine(Color.WHITE);
             ViewCompat.postInvalidateOnAnimation(this);
         }
