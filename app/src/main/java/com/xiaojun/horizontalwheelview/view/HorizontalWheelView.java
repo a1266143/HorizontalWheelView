@@ -210,7 +210,7 @@ public class HorizontalWheelView extends View {
         if (mSetDataAlready && mOffsetXFix != 0) {
             scrollTo(-mOffsetXFix, 0);
             int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
-            scrollBy(dx - mOffsetXFix, 0);
+            scrollTo(dx - mOffsetXFix, 0);
             correctPosition();
             setCenterLine(Color.WHITE);
             ViewCompat.postInvalidateOnAnimation(this);
