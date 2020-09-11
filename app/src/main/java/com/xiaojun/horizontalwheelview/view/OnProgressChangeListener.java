@@ -15,8 +15,9 @@ public interface OnProgressChangeListener {
 
     /**
      * 最终的进度值
-     * @param position
+     * @param position 当前滑动到的index
+     * @param lastPosition  上一次的index
      */
-    void onProgressSelected(int position);
+    void onProgressSelected(int position,int lastPosition);
 
 }

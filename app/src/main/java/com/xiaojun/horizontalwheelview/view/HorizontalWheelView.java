@@ -4,16 +4,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Handler;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Scroller;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.view.GestureDetectorCompat;
@@ -24,7 +20,6 @@ import com.xiaojun.horizontalwheelview.SCROLLTYPE;
 import com.xiaojun.horizontalwheelview.util.ScreenUtils;
 import com.xiaojun.horizontalwheelview.util.VibratorUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,6 +36,7 @@ public class HorizontalWheelView extends View {
     private int mWidth, mHeight;
     private int mOffsetXFix;//固定偏移距离
     private SCROLLTYPE mType;
+    private int mLastPosition;//上一次的index
     //-----------------------------------------------------------------------------------
 
     //---------------------------------------球--------------------------------------
@@ -198,11 +194,11 @@ public class HorizontalWheelView extends View {
      * @param dataType  数据类型
      */
     public void setDatas(int size, int initIndex, TYPE dataType) {
-        Log.e("xiaojun", "HorizontalWheelView:setDatas");
         if (size <= 0)
             return;
         if (initIndex < 0 || initIndex >= size)
             return;
+        mLastPosition = initIndex;
         if (mScroller != null && !mScroller.isFinished())
             mScroller.forceFinished(true);
         mScalesManager.setDatas(size, initIndex, dataType);
@@ -213,7 +209,6 @@ public class HorizontalWheelView extends View {
             scrollTo(dx - mOffsetXFix, 0);
             correctPosition();
             setCenterLine(Color.WHITE);
-//            ViewCompat.postInvalidateOnAnimation(this);
         }
         mSetDataAlready = true;
     }
@@ -284,7 +279,8 @@ public class HorizontalWheelView extends View {
                     if (mScalesManager.getCenterScale().mStartX == (getScrollX() + mOffsetXFix))
                         mBallManager.dismissBall();
                     if (mListener != null) {
-                        mListener.onProgressSelected(mScalesManager.getFinalStopIndex());
+                        mListener.onProgressSelected(mScalesManager.getFinalStopIndex(),mLastPosition);
+                        mLastPosition = mScalesManager.getFinalStopIndex();
                     }
 
                 }
@@ -321,6 +317,7 @@ public class HorizontalWheelView extends View {
             float dx = mScalesManager.getDxFromPosition(getScrollX(), position);
             scrollBy((int) dx, 0);
             setCenterLine(Color.WHITE);
+            mLastPosition = position;
         }
         ViewCompat.postInvalidateOnAnimation(this);
     }

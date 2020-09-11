@@ -21,6 +21,7 @@
         android:id="@+id/horizontalWheelView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:_scalesDistance="20dp"
         android:layout_marginTop="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/horizontalWheelView"
@@ -37,7 +38,6 @@
         app:layout_constraintTop_toTopOf="parent"
         android:inputType="number"
         android:autofillHints="@string/app_name"
-        android:focusable="false"
         />
 
     <Button

@@ -3,6 +3,8 @@ package com.xiaojun.horizontalwheelview;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -33,11 +35,13 @@ public class MainActivity extends AppCompatActivity {
         mView.setOnProgressChangeListener(new OnProgressChangeListener() {
             @Override
             public void onProgressChange(int position, boolean fromUser) {
+                Log.e("xiaojun","onProgressChange:"+position);
                 mTvRight.setText(position + "");
             }
 
             @Override
-            public void onProgressSelected(int position) {
+            public void onProgressSelected(int position,int lastPosition) {
+                Log.e("xiaojun","onProgressSelected:"+position+",lastPosition="+lastPosition);
                 mTv.setText(position + "");
             }
         });
@@ -48,29 +52,31 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onProgressSelected(int position) {
+            public void onProgressSelected(int position,int lastPosition) {
                 mTv.setText(position + "");
             }
         });
-        mView.setDatas(100, 99, TYPE.CONTINUED);
 
-        mView2.setDatas(100, 50, TYPE.DISCRETE);
+        mView.setDatas(100,3,TYPE.CONTINUED);
+
+//        mView2.setDatas(100, 50, TYPE.DISCRETE);
     }
 
 
     private TYPE mType;
 
     public void click(View view) {
-//        int position = Integer.parseInt(mEdt.getText().toString());
-//        mView.scrollToPosition(position);
-        if (mType == TYPE.DISCRETE){
-            mView.setDatas(50, 25, TYPE.CONTINUED);
-            mType = TYPE.CONTINUED;
-        }
-        else{
-            mView.setDatas(50, 0, TYPE.DISCRETE);
-            mType = TYPE.DISCRETE;
-        }
+//        mView.setDatas(50, 0, TYPE.DISCRETE);
+        int position = Integer.parseInt(mEdt.getText().toString());
+        mView.scrollToPosition(position,false);
+//        if (mType == TYPE.DISCRETE){
+//            mView.setDatas(50, 25, TYPE.CONTINUED);
+//            mType = TYPE.CONTINUED;
+//        }
+//        else{
+//            mView.setDatas(50, 0, TYPE.DISCRETE);
+//            mType = TYPE.DISCRETE;
+//        }
 
     }
 
