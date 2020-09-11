@@ -320,6 +320,7 @@ public class HorizontalWheelView extends View {
             mType = SCROLLTYPE.NONE;
             float dx = mScalesManager.getDxFromPosition(getScrollX(), position);
             scrollBy((int) dx, 0);
+            setCenterLine(Color.WHITE);
         }
         ViewCompat.postInvalidateOnAnimation(this);
     }
