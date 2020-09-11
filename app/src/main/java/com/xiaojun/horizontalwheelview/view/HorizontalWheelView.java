@@ -317,6 +317,7 @@ public class HorizontalWheelView extends View {
         if (animate)
             mScroller.startScroll(getScrollX(), 0, (int) mScalesManager.getDxFromPosition(getScrollX(), position), 0);
         else {
+            mType = SCROLLTYPE.NONE;
             float dx = mScalesManager.getDxFromPosition(getScrollX(), position);
             scrollBy((int) dx, 0);
         }
