@@ -116,9 +116,9 @@ public class HorizontalWheelView extends View {
         //固定偏移距离
         this.mOffsetXFix = mWidth / 2;
         mScalesManager.setFixOffsetX(mOffsetXFix);
-        Log.e("xiaojun","HorizontalWheelView:onMeasure");
+        Log.e("xiaojun", "HorizontalWheelView:onMeasure");
         if (mScalesManager.getInitPosition() != mScalesManager.getFinalStopIndex() && mScalesManager.getInitPosition() != -1) {
-            scrollTo(-mOffsetXFix,0);
+            scrollTo(-mOffsetXFix, 0);
             int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
             scrollTo(dx - mOffsetXFix, 0);
             correctPosition();
@@ -178,13 +178,13 @@ public class HorizontalWheelView extends View {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        Log.e("xiaojun","HorizontalWheelView:onFinishInflate");
+        Log.e("xiaojun", "HorizontalWheelView:onFinishInflate");
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        Log.e("xiaojun","HorizontalWheelView:onAttachedToWindow");
+        Log.e("xiaojun", "HorizontalWheelView:onAttachedToWindow");
     }
 
     //是否已经初始化过
@@ -198,7 +198,7 @@ public class HorizontalWheelView extends View {
      * @param dataType  数据类型
      */
     public void setDatas(int size, int initIndex, TYPE dataType) {
-        Log.e("xiaojun","HorizontalWheelView:setDatas");
+        Log.e("xiaojun", "HorizontalWheelView:setDatas");
         if (size <= 0)
             return;
         if (initIndex < 0 || initIndex >= size)
@@ -213,7 +213,7 @@ public class HorizontalWheelView extends View {
             scrollTo(dx - mOffsetXFix, 0);
             correctPosition();
             setCenterLine(Color.WHITE);
-            ViewCompat.postInvalidateOnAnimation(this);
+//            ViewCompat.postInvalidateOnAnimation(this);
         }
         mSetDataAlready = true;
     }
@@ -244,7 +244,7 @@ public class HorizontalWheelView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.e("xiaojun","HorizontalWheelView:onDraw");
+        Log.e("xiaojun", "HorizontalWheelView:onDraw");
         if (mScalesManager == null)
             return;
         drawScales(canvas);
@@ -310,11 +310,16 @@ public class HorizontalWheelView extends View {
      *
      * @param position
      */
-    public void scrollToPosition(int position) {
+    public void scrollToPosition(int position, boolean animate) {
         mType = SCROLLTYPE.PROGRAM;
         mScroller.forceFinished(true);
         mBallManager.showBall();
-        mScroller.startScroll(getScrollX(), 0, (int) mScalesManager.getDxFromPosition(getScrollX(), position), 0);
+        if (animate)
+            mScroller.startScroll(getScrollX(), 0, (int) mScalesManager.getDxFromPosition(getScrollX(), position), 0);
+        else {
+            float dx = mScalesManager.getDxFromPosition(getScrollX(), position);
+            scrollBy((int) dx, 0);
+        }
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
