@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private HorizontalWheelView mView, mView2;
     private TextView mTv;
     private TextView mTvRight;
+    private TextView mTvDelay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         mView2 = findViewById(R.id.horizontalWheelView2);
         mTv = findViewById(R.id.tv);
         mTvRight = findViewById(R.id.tvRight);
+        mTvDelay = findViewById(R.id.tvred);
         mView.setOnProgressChangeListener(new OnProgressChangeListener() {
             @Override
             public void onProgressChange(int position, boolean fromUser) {
@@ -44,6 +46,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("xiaojun","onProgressSelected:"+position+",lastPosition="+lastPosition);
                 mTv.setText(position + "");
             }
+
+            @Override
+            public void onProgressDelayChange(int position) {
+                mTvDelay.setText(""+position);
+            }
         });
         mView2.setOnProgressChangeListener(new OnProgressChangeListener() {
             @Override
@@ -54,6 +61,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressSelected(int position,int lastPosition) {
                 mTv.setText(position + "");
+            }
+
+            @Override
+            public void onProgressDelayChange(int position) {
+
             }
         });
 

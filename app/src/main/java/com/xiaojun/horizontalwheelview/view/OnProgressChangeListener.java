@@ -20,4 +20,10 @@ public interface OnProgressChangeListener {
      */
     void onProgressSelected(int position,int lastPosition);
 
+    /**
+     * 如果按住HorizontalWheelView不滑动一段时间后回调用户
+     * @param position 当前选中的index
+     */
+    void onProgressDelayChange(int position);
+
 }
