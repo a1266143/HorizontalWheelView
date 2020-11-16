@@ -11,28 +11,29 @@ import android.os.Vibrator;
  */
 public class VibratorUtils {
 
-    private Vibrator mVibrator;
-    private boolean mHasVibrator;
-    private VibrationEffect mVibrationEffect;
+	private Vibrator mVibrator;
+	private boolean mHasVibrator;
+	private VibrationEffect mVibrationEffect;
 
-    public VibratorUtils(Context context) {
-        this.mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-        mHasVibrator = mVibrator.hasVibrator();
-        if (mHasVibrator)
-            mVibrationEffect = VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK);
-    }
+	public VibratorUtils(Context context) {
+		this.mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+		mHasVibrator = mVibrator.hasVibrator();
+		if (mHasVibrator && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+			mVibrationEffect = VibrationEffect.createOneShot(10,VibrationEffect.DEFAULT_AMPLITUDE);
+	}
 
-    /**
-     * 震动
-     */
-    public void vibrate() {
-        if (mVibrator != null && mHasVibrator) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                mVibrator.vibrate(mVibrationEffect);
-            } else {
-                mVibrator.vibrate(10);
-            }
-        }
-    }
+	/**
+	 * 震动
+	 */
+	public void vibrate() {
+		if (mVibrator != null && mHasVibrator) {
+			//如果API >= 26,使用vibrate(VibrationEffect,AudioAttributes)
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+				mVibrator.vibrate(mVibrationEffect);
+			} else {//26以下使用此API
+				mVibrator.vibrate(10);
+			}
+		}
+	}
 
 }
