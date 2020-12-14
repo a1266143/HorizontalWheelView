@@ -212,7 +212,7 @@ public class HorizontalWheelView extends View {
 	}
 
 	private void scrollToCorrespondingPosition(float dx) {
-		if (dx != 0) {
+		if (dx >= 0) {
 			mType = SCROLLTYPE.PROGRAM;
 			mScroller.startScroll(getScrollX(), 0, (int) dx, 0, 150);
 			ViewCompat.postInvalidateOnAnimation(this);
