@@ -17,6 +17,7 @@ import androidx.core.view.GestureDetectorCompat;
 import androidx.core.view.ViewCompat;
 
 import com.xiaojun.bulter.yyUtils.YyScreenUtils;
+import com.xiaojun.horizontalwheelview.BuildConfig;
 import com.xiaojun.horizontalwheelview.SCROLLTYPE;
 import com.xiaojun.horizontalwheelview.util.ScreenUtils;
 import com.xiaojun.horizontalwheelview.util.VibratorUtils;
@@ -251,6 +252,9 @@ public class HorizontalWheelView extends View {
 	 * @param dataType  数据类型
 	 */
 	public void setDatas(int size, int initIndex, TYPE dataType) {
+		if (BuildConfig.DEBUG && size <= 0 && initIndex >= 0 && initIndex < size) {
+			throw new AssertionError("Assertion failed:size must <= 0 and initIndex must >= 0 and < size");
+		}
 		if (size <= 0)
 			return;
 		if (initIndex < 0 || initIndex >= size)
