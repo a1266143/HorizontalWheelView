@@ -36,7 +36,7 @@ public class HorizontalWheelView extends View {
 	private ScalesDiscreteManager mScalesManager = new ScalesDiscreteManager(getContext());
 	private int mWidth, mHeight;
 	private int mOffsetXFix;//固定偏移距离
-	private SCROLLTYPE mType;
+	private SCROLLTYPE mType = SCROLLTYPE.NONE;
 	private int mLastPosition;//上一次的index
 	//-----------------------------------------------------------------------------------
 
@@ -118,7 +118,7 @@ public class HorizontalWheelView extends View {
 			scrollTo(-mOffsetXFix, 0);
 			int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
 			scrollTo(dx - mOffsetXFix, 0);
-			correctPosition();
+			correctPosition(false);
 			setCenterLine(Color.WHITE);
 			mScalesManager.setInitPosition(-1);
 		}
@@ -151,7 +151,7 @@ public class HorizontalWheelView extends View {
 			setCenterLine(Color.WHITE);
 			boolean isFinish = mScroller.isFinished();
 			if (isFinish) //只scroll但是没有Fling，这时候需要纠正距离
-				correctPosition();
+				correctPosition(true);
 		}
 		return result;
 	}
@@ -177,9 +177,10 @@ public class HorizontalWheelView extends View {
 
 	/**
 	 * 提供外部接口可以更改点按延时时间
+	 *
 	 * @param millisecond
 	 */
-	public void setDelayCallbackTime(int millisecond){
+	public void setDelayCallbackTime(int millisecond) {
 		TIMEOUT_DELAY = millisecond;
 	}
 
@@ -196,7 +197,7 @@ public class HorizontalWheelView extends View {
 	private void callbackAfterAWhile(MotionEvent event) {
 		if (event.getAction() == MotionEvent.ACTION_MOVE) {
 			int currentPosition = mScalesManager.getIndex();
-			if (mDelayLastPosition != currentPosition){
+			if (mDelayLastPosition != currentPosition) {
 				delayCallback();
 				mDelayLastPosition = currentPosition;
 			}
@@ -206,14 +207,17 @@ public class HorizontalWheelView extends View {
 		}
 	}
 
-	private void correctPosition() {
+	private void correctPosition(boolean needCallback) {
 		float dx = mScalesManager.correctOffsetX(getScrollX(), mOffsetXFix);
-		scrollToCorrespondingPosition(dx);
+		scrollToCorrespondingPosition(dx, needCallback);
 	}
 
-	private void scrollToCorrespondingPosition(float dx) {
-		if (dx >= 0) {
+	private void scrollToCorrespondingPosition(float dx, boolean needCallback) {
+		if (needCallback)
 			mType = SCROLLTYPE.PROGRAM;
+		else
+			mType = SCROLLTYPE.NONE;
+		if (dx != 0) {
 			mScroller.startScroll(getScrollX(), 0, (int) dx, 0, 150);
 			ViewCompat.postInvalidateOnAnimation(this);
 		}
@@ -260,7 +264,7 @@ public class HorizontalWheelView extends View {
 			scrollTo(-mOffsetXFix, 0);
 			int dx = (int) mScalesManager.getDxFromPosition(getScrollX(), mScalesManager.getInitPosition());
 			scrollTo(dx - mOffsetXFix, 0);
-			correctPosition();
+			correctPosition(false);
 			setCenterLine(Color.WHITE);
 		}
 		mSetDataAlready = true;
@@ -323,7 +327,7 @@ public class HorizontalWheelView extends View {
 		} else {
 			if (mType == SCROLLTYPE.FLING) {
 				mType = SCROLLTYPE.PROGRAM;
-				correctPosition();
+				correctPosition(true);
 			} else {
 				if (mType == SCROLLTYPE.PROGRAM) {//startScroll结束
 					mType = SCROLLTYPE.NONE;
